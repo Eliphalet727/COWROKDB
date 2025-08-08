@@ -2441,29 +2441,17 @@
                      </tr>
                      <tr data-missing="0" data-date="2017-05-19">
                         <td class="table-name">WEB_WEATHERQ</td>
-                        <td>
-                           -
-                        </td>
+                        <td>-</td>
                         <td>2017-05-19</td>
-                        <td>
-                           -
-                        </td>
-                        <td>
-                           -
-                        </td>
+                        <td>-</td>
+                        <td>-</td>
                      </tr>
                      <tr data-missing="0" data-date="2014-11-13">
                         <td class="table-name">WEB_WEATHERQ_Gust</td>
-                        <td>
-                           -
-                        </td>
+                        <td>-</td>
                         <td>2014-11-13</td>
-                        <td>
-                           -
-                        </td>
-                        <td>
-                           -
-                        </td>
+                        <td>-</td>
+                        <td>-</td>
                      </tr>
                   </tbody>
                </table>
@@ -2508,39 +2496,42 @@
              }
          }
 
-         function filterByMissing(type) {
-             const buttons = document.querySelectorAll('.filter-btn');
-             buttons.forEach(btn => btn.classList.remove('active'));
-             event.target.classList.add('active');
+        function filterByMissing(type) {
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
 
-             const table = document.getElementById('dataTable');
-             const tbody = table.getElementsByTagName('tbody')[0];
-             const rows = tbody.getElementsByTagName('tr');
+            const table = document.getElementById('dataTable');
+            const tbody = table.getElementsByTagName('tbody')[0];
+            const rows = tbody.getElementsByTagName('tr');
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                if (row.dataset.missing !== undefined) {
+                    const missingCount = parseInt(row.dataset.missing, 10);
 
-             for (let i = 0; i < rows.length; i += 2) {
-                 const row = rows[i];
-                 const missingCount = parseInt(row.dataset.missing);
-
-                 let show = false;
-                 switch(type) {
-                     case 'all':
-                         show = true;
-                         break;
-                     case 'none':
-                         show = missingCount === 0;
-                         break;
-                     case 'few':
-                         show = missingCount > 0 && missingCount <= 10;
-                         break;
-                     case 'many':
-                         show = missingCount > 10;
-                         break;
-                 }
-
-                 row.style.display = show ? '' : 'none';
-                 if (rows[i + 1]) rows[i + 1].style.display = 'none';
-             }
-         }
+                    let show = false;
+                    switch(type) {
+                        case 'all':
+                            show = true;
+                            break;
+                        case 'none':
+                            show = missingCount === 0;
+                            break;
+                        case 'few':
+                            show = missingCount > 0 && missingCount <= 10;
+                            break;
+                        case 'many':
+                            show = missingCount > 10;
+                            break;
+                    }
+                    row.style.display = show ? '' : 'none';
+                    const nextRow = row.nextElementSibling;
+                    if (nextRow && nextRow.cells.length === 1) {
+                        nextRow.style.display = 'none';
+                    }
+                }
+            }
+        }
 
          let sortDirection = {};
 
