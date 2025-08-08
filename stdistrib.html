@@ -1,0 +1,2598 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Armts2Cowork 測站分佈情形</title>
+      <style>
+         * {
+         margin: 0;
+         padding: 0;
+         box-sizing: border-box;
+         }
+         body {
+         font-family: 'Segoe UI', 'Microsoft JhengHei', Tahoma, Geneva, Verdana, sans-serif;
+         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+         min-height: 100vh;
+         padding: 20px;
+         }
+         .container {
+         max-width: 1400px;
+         margin: 0 auto;
+         background: rgba(255, 255, 255, 0.95);
+         border-radius: 20px;
+         padding: 30px;
+         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+         backdrop-filter: blur(10px);
+         }
+         h1 {
+         color: #2d3748;
+         text-align: center;
+         margin-bottom: 10px;
+         font-size: 2.5em;
+         text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+         }
+         .timestamp {
+         text-align: center;
+         color: #718096;
+         margin-bottom: 30px;
+         font-size: 0.9em;
+         }
+         .stats-container {
+         display: grid;
+         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+         gap: 20px;
+         margin-bottom: 40px;
+         }
+         .stat-card {
+         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+         color: white;
+         padding: 25px;
+         border-radius: 15px;
+         box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+         transition: transform 0.3s ease, box-shadow 0.3s ease;
+         }
+         .stat-card:hover {
+         transform: translateY(-5px);
+         box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+         }
+         .stat-card h3 {
+         font-size: 0.9em;
+         opacity: 0.9;
+         margin-bottom: 8px;
+         text-transform: uppercase;
+         letter-spacing: 1px;
+         }
+         .stat-card .number {
+         font-size: 2.5em;
+         font-weight: bold;
+         }
+         .classification-summary {
+         background: #f7fafc;
+         border-radius: 15px;
+         padding: 25px;
+         margin-bottom: 40px;
+         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+         }
+         .classification-summary h2 {
+         color: #2d3748;
+         margin-bottom: 20px;
+         font-size: 1.8em;
+         }
+         .class-grid {
+         display: grid;
+         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+         gap: 15px;
+         }
+         .class-badge {
+         background: white;
+         border-left: 4px solid #667eea;
+         padding: 15px;
+         border-radius: 8px;
+         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+         transition: all 0.3s ease;
+         }
+         .class-badge:hover {
+         transform: translateX(5px);
+         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+         }
+         .class-badge-title {
+         font-weight: bold;
+         color: #667eea;
+         font-size: 1.2em;
+         margin-bottom: 8px;
+         }
+         .class-badge-desc {
+         font-size: 0.8em;
+         color: #718096;
+         margin: 5px 0;
+         font-style: italic;
+         }
+         .class-badge-stat {
+         font-size: 0.85em;
+         color: #4a5568;
+         margin: 3px 0;
+         }
+         .table-section {
+         margin-top: 40px;
+         }
+         .table-section h2 {
+         color: #2d3748;
+         margin-bottom: 20px;
+         font-size: 1.8em;
+         }
+         .search-box {
+         margin-bottom: 20px;
+         display: flex;
+         gap: 10px;
+         flex-wrap: wrap;
+         }
+         .search-box input {
+         flex: 1;
+         min-width: 200px;
+         padding: 12px 20px;
+         border: 2px solid #e2e8f0;
+         border-radius: 10px;
+         font-size: 1em;
+         transition: border-color 0.3s ease;
+         }
+         .search-box input:focus {
+         outline: none;
+         border-color: #667eea;
+         }
+         .filter-buttons {
+         display: flex;
+         gap: 10px;
+         flex-wrap: wrap;
+         }
+         .filter-btn {
+         padding: 10px 20px;
+         border: none;
+         border-radius: 8px;
+         background: #e2e8f0;
+         color: #4a5568;
+         cursor: pointer;
+         transition: all 0.3s ease;
+         font-size: 0.9em;
+         }
+         .filter-btn:hover {
+         background: #cbd5e0;
+         }
+         .filter-btn.active {
+         background: #667eea;
+         color: white;
+         }
+         .table-container {
+         background: white;
+         border-radius: 15px;
+         overflow: hidden;
+         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+         }
+         table {
+         width: 100%;
+         border-collapse: collapse;
+         }
+         thead {
+         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+         color: white;
+         }
+         th {
+         padding: 15px;
+         text-align: left;
+         font-weight: 600;
+         letter-spacing: 0.5px;
+         }
+         tbody tr {
+         border-bottom: 1px solid #e2e8f0;
+         transition: background-color 0.3s ease;
+         }
+         tbody tr:hover {
+         background-color: #f7fafc;
+         }
+         td {
+         padding: 15px;
+         color: #4a5568;
+         }
+         .table-name {
+         font-weight: 600;
+         color: #2d3748;
+         }
+         .classifications {
+         display: flex;
+         flex-wrap: wrap;
+         gap: 5px;
+         }
+         .class-tag {
+         background: #edf2f7;
+         color: #4a5568;
+         padding: 4px 10px;
+         border-radius: 15px;
+         font-size: 0.85em;
+         font-weight: 500;
+         }
+         .missing-count {
+         display: inline-block;
+         padding: 6px 12px;
+         border-radius: 20px;
+         font-weight: bold;
+         font-size: 0.9em;
+         }
+         .missing-none {
+         background: #c6f6d5;
+         color: #22543d;
+         }
+         .missing-few {
+         background: #fef5e7;
+         color: #744210;
+         }
+         .missing-many {
+         background: #fed7d7;
+         color: #742a2a;
+         }
+         .expand-btn {
+         background: #667eea;
+         color: white;
+         border: none;
+         padding: 8px 16px;
+         border-radius: 8px;
+         cursor: pointer;
+         font-size: 0.85em;
+         transition: all 0.3s ease;
+         }
+         .expand-btn:hover {
+         background: #5a67d8;
+         transform: scale(1.05);
+         }
+         .missing-details {
+         display: none;
+         padding: 15px;
+         background: #f7fafc;
+         border-radius: 10px;
+         margin-top: 10px;
+         animation: slideDown 0.3s ease;
+         }
+         .missing-details.show {
+         display: block;
+         }
+         @keyframes slideDown {
+         from {
+         opacity: 0;
+         transform: translateY(-10px);
+         }
+         to {
+         opacity: 1;
+         transform: translateY(0);
+         }
+         }
+         .missing-category {
+         margin-bottom: 15px;
+         background: white;
+         padding: 15px;
+         border-radius: 8px;
+         border-left: 3px solid #667eea;
+         }
+         .missing-category h4 {
+         color: #667eea;
+         margin-bottom: 10px;
+         font-size: 1.1em;
+         }
+         .station-list {
+         display: grid;
+         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+         gap: 8px;
+         }
+         .station-item {
+         background: #edf2f7;
+         padding: 8px 12px;
+         border-radius: 6px;
+         font-size: 0.9em;
+         color: #4a5568;
+         transition: all 0.2s ease;
+         }
+         .station-item:hover {
+         background: #e2e8f0;
+         transform: translateX(3px);
+         }
+         .station-id {
+         font-weight: bold;
+         color: #2d3748;
+         }
+         .no-data {
+         text-align: center;
+         padding: 40px;
+         color: #a0aec0;
+         font-size: 1.1em;
+         }
+         @media (max-width: 768px) {
+         .container {
+         padding: 20px;
+         }
+         h1 {
+         font-size: 2em;
+         }
+         .stats-container {
+         grid-template-columns: 1fr;
+         }
+         .class-grid {
+         grid-template-columns: 1fr;
+         }
+         .station-list {
+         grid-template-columns: 1fr;
+         }
+         }
+      </style>
+   </head>
+   <body>
+      <div class="container">
+         <h1>Armts2Cowork 測站分佈情形</h1>
+         <div class="timestamp">生成時間：2025-08-08 16:11:27</div>
+         <div class="stats-container">
+            <div class="stat-card">
+               <h3>資料表總數</h3>
+               <div class="number">18</div>
+            </div>
+            <div class="stat-card">
+               <h3>分類總數</h3>
+               <div class="number">11</div>
+            </div>
+         </div>
+         <div class="classification-summary">
+            <h2>📊 分類統計總覽</h2>
+            <div class="class-grid">
+               <div class="class-badge">
+                  <div class="class-badge-title">A1</div>
+                  <div class="class-badge-desc">有 <span style="color: black;"><strong>ACOS</strong></span> 系統的測站</div>
+                  <div class="class-badge-stat">測站總數: 30</div>
+                  <div class="class-badge-stat">覆蓋表數: 3</div>
+               </div>
+               <div class="class-badge">
+                  <div class="class-badge-title">A2</div>
+                  <div class="class-badge-desc">使用 <span style="color: red;"><strong>ASOS</strong></span> 系統且<span style="color: blue;"><strong>站碼為 46 開頭</strong></span></div>
+                  <div class="class-badge-stat">測站總數: 3</div>
+                  <div class="class-badge-stat">覆蓋表數: 3</div>
+               </div>
+               <div class="class-badge">
+                  <div class="class-badge-title">A3</div>
+                  <div class="class-badge-desc">測政管理科建立，使用 <span style="color: red;"><strong>ASOS</strong></span> 系統且站碼<span style="color: darkred;"><strong>不</strong></span>為 46 開頭，最早期的合作站（武陵、彰師大等）</div>
+                  <div class="class-badge-stat">測站總數: 7</div>
+                  <div class="class-badge-stat">覆蓋表數: 3</div>
+               </div>
+               <div class="class-badge">
+                  <div class="class-badge-title">A4</div>
+                  <div class="class-badge-desc">自動觀測科建立的合作站，<span style="color: blue;"><strong>非國道及公路局合作測站</strong></span>（注意：僅<span style="color: black;"><strong>大安森林站使用 ASOS 系統</strong></span>）</div>
+                  <div class="class-badge-stat">測站總數: 6</div>
+                  <div class="class-badge-stat">覆蓋表數: 3</div>
+               </div>
+               <div class="class-badge">
+                  <div class="class-badge-title">A5</div>
+                  <div class="class-badge-desc">自動觀測科蓋建立的國道及公路局合作站</div>
+                  <div class="class-badge-stat">測站總數: 106</div>
+                  <div class="class-badge-stat">覆蓋表數: 0</div>
+               </div>
+               <div class="class-badge">
+                  <div class="class-badge-title">A6</div>
+                  <div class="class-badge-desc"><span style="color: black;"><strong>自動觀測科</strong></span>建立的<span style="color: brown;"><strong>農業站</strong></span></div>
+                  <div class="class-badge-stat">測站總數: 74</div>
+                  <div class="class-badge-stat">覆蓋表數: 3</div>
+               </div>
+               <div class="class-badge">
+                  <div class="class-badge-title">A7</div>
+                  <div class="class-badge-desc"><span style="color: blue;"><strong>前第三組農業科</strong></span>蓋的<span style="color: brown;"><strong>農業站</strong></span></div>
+                  <div class="class-badge-stat">測站總數: 57</div>
+                  <div class="class-badge-stat">覆蓋表數: 3</div>
+               </div>
+               <div class="class-badge">
+                  <div class="class-badge-title">A8</div>
+                  <div class="class-badge-desc">學校合作站</div>
+                  <div class="class-badge-stat">測站總數: 3</div>
+                  <div class="class-badge-stat">覆蓋表數: 3</div>
+               </div>
+               <div class="class-badge">
+                  <div class="class-badge-title">B1</div>
+                  <div class="class-badge-desc">自動氣象站</div>
+                  <div class="class-badge-stat">測站總數: 504</div>
+                  <div class="class-badge-stat">覆蓋表數: 13</div>
+               </div>
+               <div class="class-badge">
+                  <div class="class-badge-title">B2</div>
+                  <div class="class-badge-desc">自動雨量站</div>
+                  <div class="class-badge-stat">測站總數: 147</div>
+                  <div class="class-badge-stat">覆蓋表數: 5</div>
+               </div>
+               <div class="class-badge">
+                  <div class="class-badge-title">C1</div>
+                  <div class="class-badge-desc">外單位合作雨量站</div>
+                  <div class="class-badge-stat">測站總數: 359</div>
+                  <div class="class-badge-stat">覆蓋表數: 0</div>
+               </div>
+            </div>
+         </div>
+         <div class="table-section">
+            <h2>📋 詳細資料表分析</h2>
+            <div class="search-box">
+               <input type="text" id="searchInput" placeholder="搜尋表名或分類..." onkeyup="filterTable()">
+               <div class="filter-buttons">
+                  <button class="filter-btn active" onclick="filterByMissing('all')">全部</button>
+                  <button class="filter-btn" onclick="filterByMissing('none')">無缺漏</button>
+                  <button class="filter-btn" onclick="filterByMissing('few')">少量缺漏 (1-10)</button>
+                  <button class="filter-btn" onclick="filterByMissing('many')">大量缺漏 (>10)</button>
+               </div>
+            </div>
+            <div class="table-container">
+               <table id="dataTable">
+                  <thead>
+                     <tr>
+                        <th onclick="sortTable(0)" style="cursor: pointer;">表名 ↕</th>
+                        <th onclick="sortTable(1)" style="cursor: pointer;">包含分類 ↕</th>
+                        <th onclick="sortTable(2)" style="cursor: pointer;">最新一筆觀測日期 ↕</th>
+                        <th onclick="sortTable(3)" style="cursor: pointer;">缺漏數量 ↕</th>
+                        <th>詳細資訊</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <tr data-missing="1" data-date="2025-08-01">
+                        <td class="table-name">WEB_RAINDM</td>
+                        <td>
+                           <div class="classifications">
+                              <span class="class-tag">B1</span>
+                              <span class="class-tag">B2</span>
+                           </div>
+                        </td>
+                        <td>2025-08-01</td>
+                        <td>
+                           <span class="missing-count missing-few">1 個</span>
+                        </td>
+                        <td>
+                           <button class="expand-btn" onclick="toggleDetails(0)">查看詳情</button>
+                        </td>
+                     </tr>
+                     <tr style="display: none;">
+                        <td colspan="5">
+                           <div class="missing-details" id="details-0">
+                              <div class="missing-category">
+                                 <h4>分類 B1 - 缺漏測站 (1 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">C0I520</span>: 玉山風口
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr data-missing="1" data-date="2025-08-07">
+                        <td class="table-name">WEB_RAINHD</td>
+                        <td>
+                           <div class="classifications">
+                              <span class="class-tag">B1</span>
+                              <span class="class-tag">B2</span>
+                           </div>
+                        </td>
+                        <td>2025-08-07</td>
+                        <td>
+                           <span class="missing-count missing-few">1 個</span>
+                        </td>
+                        <td>
+                           <button class="expand-btn" onclick="toggleDetails(1)">查看詳情</button>
+                        </td>
+                     </tr>
+                     <tr style="display: none;">
+                        <td colspan="5">
+                           <div class="missing-details" id="details-1">
+                              <div class="missing-category">
+                                 <h4>分類 B1 - 缺漏測站 (1 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">C0I520</span>: 玉山風口
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr data-missing="11" data-date="2025-08-08">
+                        <td class="table-name">WEB_RAINHD_RT</td>
+                        <td>
+                           <div class="classifications">
+                              <span class="class-tag">B1</span>
+                              <span class="class-tag">B2</span>
+                           </div>
+                        </td>
+                        <td>2025-08-08</td>
+                        <td>
+                           <span class="missing-count missing-many">11 個</span>
+                        </td>
+                        <td>
+                           <button class="expand-btn" onclick="toggleDetails(2)">查看詳情</button>
+                        </td>
+                     </tr>
+                     <tr style="display: none;">
+                        <td colspan="5">
+                           <div class="missing-details" id="details-2">
+                              <div class="missing-category">
+                                 <h4>分類 B1 - 缺漏測站 (6 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">C0AH80</span>: 深坑
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E950</span>: 松安
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FA70</span>: 大雪山埡口
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FB30</span>: 八仙山苗圃
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R100</span>: 尾寮山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V370</span>: 古亭坑
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="missing-category">
+                                 <h4>分類 B2 - 缺漏測站 (5 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">C1A630</span>: 下盆
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C1I131</span>: 桶頭
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C1O870</span>: 大棟山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C1V300</span>: 御油山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C1V600</span>: 藤枝
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr data-missing="11" data-date="2025-08-08">
+                        <td class="table-name">WEB_RAINM</td>
+                        <td>
+                           <div class="classifications">
+                              <span class="class-tag">B1</span>
+                              <span class="class-tag">B2</span>
+                           </div>
+                        </td>
+                        <td>2025-08-08</td>
+                        <td>
+                           <span class="missing-count missing-many">11 個</span>
+                        </td>
+                        <td>
+                           <button class="expand-btn" onclick="toggleDetails(3)">查看詳情</button>
+                        </td>
+                     </tr>
+                     <tr style="display: none;">
+                        <td colspan="5">
+                           <div class="missing-details" id="details-3">
+                              <div class="missing-category">
+                                 <h4>分類 B1 - 缺漏測站 (6 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">C0AH80</span>: 深坑
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E950</span>: 松安
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FA70</span>: 大雪山埡口
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FB30</span>: 八仙山苗圃
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R100</span>: 尾寮山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V370</span>: 古亭坑
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="missing-category">
+                                 <h4>分類 B2 - 缺漏測站 (5 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">C1A630</span>: 下盆
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C1I131</span>: 桶頭
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C1O870</span>: 大棟山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C1V300</span>: 御油山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C1V600</span>: 藤枝
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr data-missing="1" data-date="2025-01-01">
+                        <td class="table-name">WEB_RAINMY</td>
+                        <td>
+                           <div class="classifications">
+                              <span class="class-tag">B1</span>
+                              <span class="class-tag">B2</span>
+                           </div>
+                        </td>
+                        <td>2025-01-01</td>
+                        <td>
+                           <span class="missing-count missing-few">1 個</span>
+                        </td>
+                        <td>
+                           <button class="expand-btn" onclick="toggleDetails(4)">查看詳情</button>
+                        </td>
+                     </tr>
+                     <tr style="display: none;">
+                        <td colspan="5">
+                           <div class="missing-details" id="details-4">
+                              <div class="missing-category">
+                                 <h4>分類 B1 - 缺漏測站 (1 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">C0I520</span>: 玉山風口
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr data-missing="0" data-date="2025-08-01">
+                        <td class="table-name">WEB_WEATHERD</td>
+                        <td>
+                           <div class="classifications">
+                              <span class="class-tag">B1</span>
+                           </div>
+                        </td>
+                        <td>2025-08-01</td>
+                        <td>
+                           <span class="missing-count missing-none">無缺漏</span>
+                        </td>
+                        <td>
+                           -
+                        </td>
+                     </tr>
+                     <tr data-missing="0" data-date="2025-08-08">
+                        <td class="table-name">WEB_WEATHERH</td>
+                        <td>
+                           <div class="classifications">
+                              <span class="class-tag">B1</span>
+                           </div>
+                        </td>
+                        <td>2025-08-08</td>
+                        <td>
+                           <span class="missing-count missing-none">無缺漏</span>
+                        </td>
+                        <td>
+                           -
+                        </td>
+                     </tr>
+                     <tr data-missing="0" data-date="2025-01-01">
+                        <td class="table-name">WEB_WEATHERM</td>
+                        <td>
+                           <div class="classifications">
+                              <span class="class-tag">B1</span>
+                           </div>
+                        </td>
+                        <td>2025-01-01</td>
+                        <td>
+                           <span class="missing-count missing-none">無缺漏</span>
+                        </td>
+                        <td>
+                           -
+                        </td>
+                     </tr>
+                     <tr data-missing="1" data-date="2025-08-07">
+                        <td class="table-name">WEB_WEATHERQ10</td>
+                        <td>
+                           <div class="classifications">
+                              <span class="class-tag">B1</span>
+                           </div>
+                        </td>
+                        <td>2025-08-07</td>
+                        <td>
+                           <span class="missing-count missing-few">1 個</span>
+                        </td>
+                        <td>
+                           <button class="expand-btn" onclick="toggleDetails(8)">查看詳情</button>
+                        </td>
+                     </tr>
+                     <tr style="display: none;">
+                        <td colspan="5">
+                           <div class="missing-details" id="details-8">
+                              <div class="missing-category">
+                                 <h4>分類 B1 - 缺漏測站 (1 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">C0U880</span>: 北關
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr data-missing="1" data-date="2025-08-08">
+                        <td class="table-name">WEB_WEATHERQ10_Gust</td>
+                        <td>
+                           <div class="classifications">
+                              <span class="class-tag">B1</span>
+                           </div>
+                        </td>
+                        <td>2025-08-08</td>
+                        <td>
+                           <span class="missing-count missing-few">1 個</span>
+                        </td>
+                        <td>
+                           <button class="expand-btn" onclick="toggleDetails(9)">查看詳情</button>
+                        </td>
+                     </tr>
+                     <tr style="display: none;">
+                        <td colspan="5">
+                           <div class="missing-details" id="details-9">
+                              <div class="missing-category">
+                                 <h4>分類 B1 - 缺漏測站 (1 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">C0U880</span>: 北關
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr data-missing="7" data-date="2025-08-08">
+                        <td class="table-name">WEB_WEATHERQ10_RT</td>
+                        <td>
+                           <div class="classifications">
+                              <span class="class-tag">B1</span>
+                           </div>
+                        </td>
+                        <td>2025-08-08</td>
+                        <td>
+                           <span class="missing-count missing-few">7 個</span>
+                        </td>
+                        <td>
+                           <button class="expand-btn" onclick="toggleDetails(10)">查看詳情</button>
+                        </td>
+                     </tr>
+                     <tr style="display: none;">
+                        <td colspan="5">
+                           <div class="missing-details" id="details-10">
+                              <div class="missing-category">
+                                 <h4>分類 B1 - 缺漏測站 (7 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">C0AH80</span>: 深坑
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E950</span>: 松安
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F0A0</span>: 雪山圈谷A
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FA70</span>: 大雪山埡口
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FB30</span>: 八仙山苗圃
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R100</span>: 尾寮山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V370</span>: 古亭坑
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr data-missing="0" data-date="2025-08-07">
+                        <td class="table-name">WEB_WEXTREME</td>
+                        <td>
+                           <div class="classifications">
+                              <span class="class-tag">B1</span>
+                           </div>
+                        </td>
+                        <td>2025-08-07</td>
+                        <td>
+                           <span class="missing-count missing-none">無缺漏</span>
+                        </td>
+                        <td>
+                           -
+                        </td>
+                     </tr>
+                     <tr data-missing="11" data-date="2025-08-07">
+                        <td class="table-name">Web_ASOS_DY</td>
+                        <td>
+                           <div class="classifications">
+                              <span class="class-tag">A1</span>
+                              <span class="class-tag">A2</span>
+                              <span class="class-tag">A3</span>
+                              <span class="class-tag">A4</span>
+                              <span class="class-tag">A6</span>
+                              <span class="class-tag">A7</span>
+                              <span class="class-tag">A8</span>
+                           </div>
+                        </td>
+                        <td>2025-08-07</td>
+                        <td>
+                           <span class="missing-count missing-many">11 個</span>
+                        </td>
+                        <td>
+                           <button class="expand-btn" onclick="toggleDetails(12)">查看詳情</button>
+                        </td>
+                     </tr>
+                     <tr style="display: none;">
+                        <td colspan="5">
+                           <div class="missing-details" id="details-12">
+                              <div class="missing-category">
+                                 <h4>分類 A3 - 缺漏測站 (1 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">A0W080</span>: 吉貝
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="missing-category">
+                                 <h4>分類 A4 - 缺漏測站 (3 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">CAHA00</span>: 消防署訓練中心
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">CAP070</span>: 高雄燈塔
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">CAW010</span>: 東引
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="missing-category">
+                                 <h4>分類 A6 - 缺漏測站 (2 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">C2F860</span>: 梨山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C2H9L0</span>: 馬烈霸
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="missing-category">
+                                 <h4>分類 A7 - 缺漏測站 (3 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">72AI40</span>: 桃改樹林分場
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">E2K600</span>: 四湖植物園
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">E2P990</span>: 林試扇平站
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="missing-category">
+                                 <h4>分類 A8 - 缺漏測站 (2 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">A0A010</span>: 臺灣大學
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">A0A460</span>: 文化大學
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr data-missing="8" data-date="2025-08-08">
+                        <td class="table-name">Web_ASOS_HR</td>
+                        <td>
+                           <div class="classifications">
+                              <span class="class-tag">A1</span>
+                              <span class="class-tag">A2</span>
+                              <span class="class-tag">A3</span>
+                              <span class="class-tag">A4</span>
+                              <span class="class-tag">A6</span>
+                              <span class="class-tag">A7</span>
+                              <span class="class-tag">A8</span>
+                           </div>
+                        </td>
+                        <td>2025-08-08</td>
+                        <td>
+                           <span class="missing-count missing-few">8 個</span>
+                        </td>
+                        <td>
+                           <button class="expand-btn" onclick="toggleDetails(13)">查看詳情</button>
+                        </td>
+                     </tr>
+                     <tr style="display: none;">
+                        <td colspan="5">
+                           <div class="missing-details" id="details-13">
+                              <div class="missing-category">
+                                 <h4>分類 A3 - 缺漏測站 (1 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">A0W080</span>: 吉貝
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="missing-category">
+                                 <h4>分類 A4 - 缺漏測站 (3 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">CAHA00</span>: 消防署訓練中心
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">CAP070</span>: 高雄燈塔
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">CAW010</span>: 東引
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="missing-category">
+                                 <h4>分類 A7 - 缺漏測站 (2 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">E2K600</span>: 四湖植物園
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">E2P990</span>: 林試扇平站
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="missing-category">
+                                 <h4>分類 A8 - 缺漏測站 (2 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">A0A010</span>: 臺灣大學
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">A0A460</span>: 文化大學
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr data-missing="8" data-date="2025-08-08">
+                        <td class="table-name">Web_ASOS_MIN</td>
+                        <td>
+                           <div class="classifications">
+                              <span class="class-tag">A1</span>
+                              <span class="class-tag">A2</span>
+                              <span class="class-tag">A3</span>
+                              <span class="class-tag">A4</span>
+                              <span class="class-tag">A6</span>
+                              <span class="class-tag">A7</span>
+                              <span class="class-tag">A8</span>
+                           </div>
+                        </td>
+                        <td>2025-08-08</td>
+                        <td>
+                           <span class="missing-count missing-few">8 個</span>
+                        </td>
+                        <td>
+                           <button class="expand-btn" onclick="toggleDetails(14)">查看詳情</button>
+                        </td>
+                     </tr>
+                     <tr style="display: none;">
+                        <td colspan="5">
+                           <div class="missing-details" id="details-14">
+                              <div class="missing-category">
+                                 <h4>分類 A3 - 缺漏測站 (1 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">A0W080</span>: 吉貝
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="missing-category">
+                                 <h4>分類 A4 - 缺漏測站 (3 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">CAHA00</span>: 消防署訓練中心
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">CAP070</span>: 高雄燈塔
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">CAW010</span>: 東引
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="missing-category">
+                                 <h4>分類 A7 - 缺漏測站 (2 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">E2K600</span>: 四湖植物園
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">E2P990</span>: 林試扇平站
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="missing-category">
+                                 <h4>分類 A8 - 缺漏測站 (2 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">A0A010</span>: 臺灣大學
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">A0A460</span>: 文化大學
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr data-missing="457" data-date="2025-08-07">
+                        <td class="table-name">Web_AgriExtremeD</td>
+                        <td>
+                           <div class="classifications">
+                              <span class="class-tag">B1</span>
+                           </div>
+                        </td>
+                        <td>2025-08-07</td>
+                        <td>
+                           <span class="missing-count missing-many">457 個</span>
+                        </td>
+                        <td>
+                           <button class="expand-btn" onclick="toggleDetails(15)">查看詳情</button>
+                        </td>
+                     </tr>
+                     <tr style="display: none;">
+                        <td colspan="5">
+                           <div class="missing-details" id="details-15">
+                              <div class="missing-category">
+                                 <h4>分類 B1 - 缺漏測站 (457 個)</h4>
+                                 <div class="station-list">
+                                    <div class="station-item">
+                                       <span class="station-id">C0A520</span>: 山佳
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0A530</span>: 坪林
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0A550</span>: 泰平
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0A570</span>: 桶後
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0A640</span>: 石碇
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0A770</span>: 科教館
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0A860</span>: 大坪
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0A870</span>: 五指山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0A890</span>: 雙溪
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0A931</span>: 三和
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0A940</span>: 金山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0A950</span>: 鼻頭角
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0A970</span>: 三貂角
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0A980</span>: 社子
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0A9C0</span>: 天母
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0A9F0</span>: 內湖
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AC40</span>: 大屯山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AC60</span>: 三峽
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AC70</span>: 信義
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AC80</span>: 文山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0ACA0</span>: 新莊
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AD10</span>: 八里
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AD30</span>: 蘆洲
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AD40</span>: 土城
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AD50</span>: 鶯歌
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AG80</span>: 中和
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AH00</span>: 汐止
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AH10</span>: 永和
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AH30</span>: 五分山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AH40</span>: 平等
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AH50</span>: 林口
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AH70</span>: 松山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AH80</span>: 深坑
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AI00</span>: 五股
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AI10</span>: 屈尺
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AI20</span>: 白沙灣
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AI30</span>: 三重
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AI40</span>: 石牌
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AJ20</span>: 野柳
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AJ30</span>: 淡水觀海
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AJ40</span>: 石門
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AJ50</span>: 水湳洞
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AJ60</span>: 六塊厝
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AJ70</span>: 田寮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AJ80</span>: 板橋
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AJ90</span>: 澳底
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AK10</span>: 太平里
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0AK30</span>: 硬漢嶺
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0B010</span>: 七堵
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0B020</span>: 基隆嶼
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0B040</span>: 大武崙
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0B050</span>: 八斗子
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0B060</span>: 暖暖
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0C460</span>: 復興
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0C480</span>: 桃園
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0C490</span>: 八德
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0C630</span>: 大溪
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0C660</span>: 楊梅
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0C670</span>: 龍潭
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0C680</span>: 龜山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0C690</span>: 國一五楊N44K
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0C700</span>: 中壢
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0C710</span>: 大溪永福
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0C720</span>: 竹圍
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0C730</span>: 中大臨海站
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0C740</span>: 觀音工業區
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0C750</span>: 新興坑尾
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0C790</span>: 東眼山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0C800</span>: 四稜
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0D430</span>: 峨眉
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0D480</span>: 打鐵坑
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0D560</span>: 竹東
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0D580</span>: 寶山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0D650</span>: 湖口
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0D660</span>: 新竹市東區
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0D670</span>: 海天一線
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0D680</span>: 香山濕地
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0D690</span>: 外湖
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0D700</span>: 關西
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0D750</span>: 樂山林道6k
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0D760</span>: 大坪苗圃
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E550</span>: 明德
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E570</span>: 白沙屯
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E590</span>: 通霄
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E610</span>: 馬都安
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E730</span>: 頭份
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E740</span>: 造橋
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E750</span>: 苗栗
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E780</span>: 銅鑼
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E791</span>: 卓蘭
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E810</span>: 西湖
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E820</span>: 獅潭
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E830</span>: 苑裡
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E850</span>: 大河
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E870</span>: 高鐵苗栗
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E910</span>: 海埔
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E920</span>: 通霄漁港
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E930</span>: 龍鳳
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E940</span>: 雪見
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E950</span>: 松安
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0E960</span>: 觀霧分站
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F0B0</span>: 石岡
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F0C0</span>: 中坑
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F0D0</span>: 審馬陣A
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F850</span>: 東勢
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F970</span>: 大坑
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F9I0</span>: 神岡
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F9K0</span>: 大安
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F9L0</span>: 后里
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F9M0</span>: 豐原
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F9N0</span>: 大里
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F9O0</span>: 潭子
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F9P0</span>: 清水
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F9Q0</span>: 外埔
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F9R0</span>: 龍井
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F9S0</span>: 烏日
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F9T0</span>: 西屯
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F9U0</span>: 南屯
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F9V0</span>: 新社
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F9X0</span>: 大雅(中科園區)
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F9Y0</span>: 桃山A
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0F9Z0</span>: 雪山東峰A
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FA10</span>: 松柏
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FA20</span>: 溫寮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FA40</span>: 臺中電廠
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FA50</span>: 霧峰
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FA60</span>: 鞍馬山工作站
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FA70</span>: 大雪山埡口
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FA80</span>: 小雪山天池
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FA90</span>: 小雪山林道
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FB00</span>: 大雪山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FB10</span>: 出雲山苗圃
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FB20</span>: 雪山橋
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FB30</span>: 八仙山苗圃
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FB40</span>: 中橫21.6k
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0FB70</span>: 大甲溪埔
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G620</span>: 芬園
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G650</span>: 員林
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G660</span>: 溪湖
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G720</span>: 溪州
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G730</span>: 二林
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G740</span>: 大城
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G770</span>: 福興
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G780</span>: 秀水
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G800</span>: 埔鹽
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G810</span>: 埔心
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G820</span>: 田尾
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G830</span>: 埤頭
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G860</span>: 社頭
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G880</span>: 二水
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G890</span>: 伸港
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G900</span>: 線西
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G910</span>: 花壇
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G920</span>: 永靖
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G940</span>: 竹塘
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G950</span>: 防潮門
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G960</span>: 福寶
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G970</span>: 三豐
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0G9B0</span>: 和美
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0H890</span>: 埔里
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0H960</span>: 草屯
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0H990</span>: 昆陽
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0H9C0</span>: 合歡山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0I110</span>: 竹山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0I360</span>: 水里
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0I370</span>: 魚池
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0I380</span>: 集集
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0I390</span>: 仁愛
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0I410</span>: 名間
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0I420</span>: 國姓
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0I460</span>: 南投
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0I520</span>: 玉山風口
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0I540</span>: 奇萊稜線A
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K291</span>: 宜梧
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K330</span>: 虎尾
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K390</span>: 土庫
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K400</span>: 斗六
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K410</span>: 北港
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K420</span>: 西螺
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K430</span>: 褒忠
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K440</span>: 二崙
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K450</span>: 大埤
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K460</span>: 斗南
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K470</span>: 林內
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K480</span>: 莿桐
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K500</span>: 元長
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K510</span>: 水林
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K530</span>: 臺西
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K550</span>: 蔦松
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K560</span>: 棋山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K580</span>: 高鐵雲林
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K590</span>: 雲林東勢
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0K600</span>: 箔子寮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M520</span>: 東後寮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M640</span>: 中埔
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M650</span>: 朴子
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M660</span>: 溪口
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M670</span>: 大林
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M680</span>: 太保
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M690</span>: 水上
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M700</span>: 竹崎
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M710</span>: 東石
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M720</span>: 番路
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M730</span>: 嘉義市東區
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M740</span>: 六腳
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M750</span>: 布袋
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M760</span>: 民雄
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M770</span>: 嘉義梅山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M780</span>: 鹿草
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M790</span>: 新港
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M800</span>: 茶山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M820</span>: 達邦
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M850</span>: 表湖
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M860</span>: 新美
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0M880</span>: 好美里
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0N010</span>: 鯤鯓國小
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0N020</span>: 城西
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0N030</span>: 四草
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0N040</span>: 蘆竹溝
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0N050</span>: 蚵寮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0O830</span>: 北寮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0O840</span>: 王爺宮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0O860</span>: 大內
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0O900</span>: 善化
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0O960</span>: 崎頂
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0O970</span>: 虎頭埤
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0O980</span>: 新市
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0O990</span>: 媽廟
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R130</span>: 阿禮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R140</span>: 瑪家
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R150</span>: 三地門
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R160</span>: 鹽埔
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R190</span>: 赤山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R220</span>: 潮州
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R270</span>: 琉球嶼
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R280</span>: 檳榔
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R341</span>: 牡丹
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R440</span>: 大漢山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R470</span>: 高樹
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R480</span>: 長治
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R490</span>: 九如
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R520</span>: 崁頂
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R540</span>: 佳冬
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R550</span>: 新埤
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R560</span>: 新園
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R570</span>: 麟洛
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R580</span>: 南州
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R590</span>: 里港
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R600</span>: 舊泰武
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R620</span>: 墾雷
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R640</span>: 東港
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R650</span>: 竹田
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R660</span>: 枋寮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R670</span>: 楓港
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R680</span>: 佳樂水
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R700</span>: 枋山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R710</span>: 龍磐
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R720</span>: 旭海
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R730</span>: 大坪頂
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R741</span>: 獅子
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R750</span>: 四林格山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R760</span>: 南仁湖
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R770</span>: 保力
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R780</span>: 滿州
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R790</span>: 九棚
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R800</span>: 丹路
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R810</span>: 內獅
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R820</span>: 白鷺
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R830</span>: 高士
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R840</span>: 牡丹池山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R850</span>: 林邊
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R860</span>: 鼻頭
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R870</span>: 興海
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R880</span>: 後壁湖
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R890</span>: 山海
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R900</span>: 竹坑
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R910</span>: 下寮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R920</span>: 塭仔
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R930</span>: 萬丹
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R940</span>: 加祿堂
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R950</span>: 萬隆國小
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0R960</span>: 內埔
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S690</span>: 太麻里
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S700</span>: 知本
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S710</span>: 鹿野
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S750</span>: 向陽
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S760</span>: 紅石
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S770</span>: 大溪山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S790</span>: 金崙
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S810</span>: 東河
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S840</span>: 南田
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S890</span>: 關山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S900</span>: 蘭嶼高中
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S910</span>: 蘭嶼燈塔
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S920</span>: 金峰嘉蘭
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S930</span>: 延平
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S940</span>: 石寧山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S950</span>: 七塊厝
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S960</span>: 香蘭
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S970</span>: 加津林
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S980</span>: 勝林山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0S990</span>: 山豬窟
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0SA00</span>: 歷坵
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0SA10</span>: 檳榔四格山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0SA20</span>: 金崙山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0SA30</span>: 都歷
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0SA40</span>: 瑞和
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0SA60</span>: 知本(水試所)
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0SA80</span>: 土阪
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0SA90</span>: 達仁林場
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0SB10</span>: 美和
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0SB20</span>: 富岡
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0SB30</span>: 新蘭
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0SB40</span>: 興隆
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0SB50</span>: 叭嗡嗡
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0SB60</span>: 白守蓮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0SB70</span>: 小港漁港
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0SB80</span>: 長濱漁港
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0T790</span>: 大禹嶺
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0T820</span>: 天祥
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0T870</span>: 鯉魚潭
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0T9A0</span>: 月眉山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0T9B0</span>: 水源
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0T9E0</span>: 大坑
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0T9F0</span>: 水璉
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0T9G0</span>: 鳳林山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0T9H0</span>: 加路蘭山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0T9M0</span>: 靜浦
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0T9N0</span>: 富里
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0TA10</span>: 花蓮漁港
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0TA20</span>: 加灣
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0TA30</span>: 鹽寮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0TA40</span>: 秀林
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0TA50</span>: 和仁
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0TA80</span>: 立霧山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0U520</span>: 雙連埤
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0U710</span>: 太平山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0U720</span>: 南山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0U750</span>: 龜山島
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0U760</span>: 東澳
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0U780</span>: 五結
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0U860</span>: 頭城
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0U870</span>: 大礁溪
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0U880</span>: 北關
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0U890</span>: 三星
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0U900</span>: 內城
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0U910</span>: 冬山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0U940</span>: 羅東
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0U950</span>: 鶯子嶺
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0U960</span>: 翠峰湖
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0U970</span>: 大福
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0U980</span>: 坪林石牌
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0U990</span>: 員山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0UA00</span>: 土場
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0UA10</span>: 鴛鴦湖
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0UA20</span>: 多加屯
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0UA30</span>: 白嶺
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0UA40</span>: 西德山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0UA50</span>: 西帽山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0UA60</span>: 樟樹山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0UA70</span>: 桃源谷
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0UA80</span>: 大溪漁港
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0UA90</span>: 石城
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0UB00</span>: 淡江大學蘭陽校園
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0UB10</span>: 蘇澳
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0UB20</span>: 壯圍
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0UB60</span>: 明池
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0UB70</span>: 太平山中間站
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0UB80</span>: 翠峰林道6K
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0UB90</span>: 太平山莊
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V210</span>: 復興
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V350</span>: 溪埔
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V360</span>: 內門
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V400</span>: 阿公店
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V440</span>: 鳳山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V450</span>: 鳳森
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V490</span>: 新興
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V530</span>: 阿蓮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V610</span>: 梓官
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V620</span>: 永安
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V630</span>: 茄萣
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V640</span>: 湖內
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V650</span>: 彌陀
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V660</span>: 岡山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V680</span>: 仁武
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V690</span>: 鼓山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V700</span>: 三民
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V710</span>: 苓雅
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V720</span>: 林園
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V730</span>: 大寮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V740</span>: 旗山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V750</span>: 路竹
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V760</span>: 橋頭
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V770</span>: 大社
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V790</span>: 萬山
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V800</span>: 六龜
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V810</span>: 左營
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V820</span>: 小林
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V840</span>: 鳳鼻頭
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V850</span>: 蚵仔寮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V860</span>: 南寮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V870</span>: 文安
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V880</span>: 興達
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V890</span>: 前鎮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V900</span>: 汕尾
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0V910</span>: 大樹
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0W110</span>: 東莒
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0W120</span>: 西嶼
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0W130</span>: 花嶼
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0W140</span>: 金沙
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0W150</span>: 金寧
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0W160</span>: 烏坵
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0W180</span>: 七美
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0W190</span>: 望安
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0W200</span>: 湖西
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0W220</span>: 北竿
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0W240</span>: 九宮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X050</span>: 東河
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X100</span>: 臺南市北區
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X110</span>: 臺南市南區
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X120</span>: 麻豆
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X130</span>: 官田
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X140</span>: 西港
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X150</span>: 安定
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X160</span>: 仁德
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X170</span>: 關廟
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X180</span>: 山上
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X190</span>: 安平
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X200</span>: 左鎮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X210</span>: 白河
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X220</span>: 學甲
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X230</span>: 鹽水
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X240</span>: 關子嶺
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X250</span>: 新營
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X260</span>: 後壁
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X280</span>: 將軍
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0X290</span>: 北門
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z050</span>: 佳心
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z061</span>: 玉里
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z070</span>: 舞鶴
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z080</span>: 富源
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z150</span>: 吉安光華
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z160</span>: 鳳林
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z170</span>: 卓溪
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z180</span>: 新城
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z190</span>: 富世
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z200</span>: 萬榮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z210</span>: 瑞穗
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z220</span>: 和平林道
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z230</span>: 和平
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z250</span>: 瑞穗林道
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z270</span>: 蕃薯寮
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z280</span>: 德武
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z300</span>: 東里
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z310</span>: 清水斷崖
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z320</span>: 清水林道
+                                    </div>
+                                    <div class="station-item">
+                                       <span class="station-id">C0Z330</span>: 安通山
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr data-missing="0" data-date="2017-05-19">
+                        <td class="table-name">WEB_WEATHERQ</td>
+                        <td>
+                           -
+                        </td>
+                        <td>2017-05-19</td>
+                        <td>
+                           -
+                        </td>
+                        <td>
+                           -
+                        </td>
+                     </tr>
+                     <tr data-missing="0" data-date="2014-11-13">
+                        <td class="table-name">WEB_WEATHERQ_Gust</td>
+                        <td>
+                           -
+                        </td>
+                        <td>2014-11-13</td>
+                        <td>
+                           -
+                        </td>
+                        <td>
+                           -
+                        </td>
+                     </tr>
+                  </tbody>
+               </table>
+            </div>
+         </div>
+      </div>
+      <script>
+         function toggleDetails(idx) {
+             const details = document.getElementById('details-' + idx);
+             const row = details.parentElement.parentElement;
+
+             if (row.style.display === 'none' || row.style.display === '') {
+                 row.style.display = 'table-row';
+                 details.classList.add('show');
+             } else {
+                 details.classList.remove('show');
+                 setTimeout(() => {
+                     row.style.display = 'none';
+                 }, 300);
+             }
+         }
+
+         function filterTable() {
+             const input = document.getElementById('searchInput');
+             const filter = input.value.toLowerCase();
+             const table = document.getElementById('dataTable');
+             const tbody = table.getElementsByTagName('tbody')[0];
+             const rows = tbody.getElementsByTagName('tr');
+
+             for (let i = 0; i < rows.length; i += 2) {
+                 const row = rows[i];
+                 const tableName = row.cells[0].textContent.toLowerCase();
+                 const classifications = row.cells[1].textContent.toLowerCase();
+
+                 if (tableName.includes(filter) || classifications.includes(filter)) {
+                     row.style.display = '';
+                     if (rows[i + 1]) rows[i + 1].style.display = 'none';
+                 } else {
+                     row.style.display = 'none';
+                     if (rows[i + 1]) rows[i + 1].style.display = 'none';
+                 }
+             }
+         }
+
+         function filterByMissing(type) {
+             const buttons = document.querySelectorAll('.filter-btn');
+             buttons.forEach(btn => btn.classList.remove('active'));
+             event.target.classList.add('active');
+
+             const table = document.getElementById('dataTable');
+             const tbody = table.getElementsByTagName('tbody')[0];
+             const rows = tbody.getElementsByTagName('tr');
+
+             for (let i = 0; i < rows.length; i += 2) {
+                 const row = rows[i];
+                 const missingCount = parseInt(row.dataset.missing);
+
+                 let show = false;
+                 switch(type) {
+                     case 'all':
+                         show = true;
+                         break;
+                     case 'none':
+                         show = missingCount === 0;
+                         break;
+                     case 'few':
+                         show = missingCount > 0 && missingCount <= 10;
+                         break;
+                     case 'many':
+                         show = missingCount > 10;
+                         break;
+                 }
+
+                 row.style.display = show ? '' : 'none';
+                 if (rows[i + 1]) rows[i + 1].style.display = 'none';
+             }
+         }
+
+         let sortDirection = {};
+
+         function sortTable(columnIndex) {
+             const table = document.getElementById('dataTable');
+             const tbody = table.getElementsByTagName('tbody')[0];
+             const allRows = Array.from(tbody.getElementsByTagName('tr'));
+
+             const mainRows = [];
+             const detailRows = new Map();
+
+             for (let i = 0; i < allRows.length; i++) {
+                 if (allRows[i].dataset.missing !== undefined || allRows[i].dataset.date !== undefined) {
+                     mainRows.push(allRows[i]);
+                     if (allRows[i + 1] && !allRows[i + 1].dataset.missing && !allRows[i + 1].dataset.date) {
+                         detailRows.set(allRows[i], allRows[i + 1]);
+                     }
+                 }
+             }
+
+             sortDirection[columnIndex] = !sortDirection[columnIndex];
+
+             mainRows.sort((a, b) => {
+                 let aValue, bValue;
+
+                 if (columnIndex === 3) {
+                     aValue = parseInt(a.dataset.missing) || 0;
+                     bValue = parseInt(b.dataset.missing) || 0;
+                 } else if (columnIndex === 2) {
+                     aValue = a.cells[columnIndex].textContent.trim();
+                     bValue = b.cells[columnIndex].textContent.trim();
+                     if (aValue === '-') aValue = '';
+                     if (bValue === '-') bValue = '';
+                 } else {
+                     aValue = a.cells[columnIndex].textContent.trim();
+                     bValue = b.cells[columnIndex].textContent.trim();
+                 }
+
+                 if (aValue < bValue) return sortDirection[columnIndex] ? -1 : 1;
+                 if (aValue > bValue) return sortDirection[columnIndex] ? 1 : -1;
+                 return 0;
+             });
+
+             tbody.innerHTML = '';
+             mainRows.forEach(row => {
+                 tbody.appendChild(row);
+                 const detailRow = detailRows.get(row);
+                 if (detailRow) {
+                     tbody.appendChild(detailRow);
+                 }
+             });
+         }
+      </script>
+   </body>
+</html>
